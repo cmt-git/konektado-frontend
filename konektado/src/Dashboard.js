@@ -75,14 +75,14 @@ export default function Dashboard() {
   const ncrCityData = getNCRComplaintsByCity(mockData);
   const networkIssueData = getNetworkIssueCounts(mockData);
 
-  useEffect(() => {
-    const getData = async () => {
-      const result = await fetchData();
-      console.log(result);
-    };
+  // useEffect(() => {
+  //   const getData = async () => {
+  //     const result = await fetchData();
+  //     console.log(result);
+  //   };
 
-    getData();
-  }, []);
+  //   getData();
+  // }, []);
 
   return (
     <div className="relative bg-[#111111] text-white min-h-screen">
