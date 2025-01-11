@@ -14,15 +14,24 @@ import {
   Line,
   Treemap,
   BarChart,
-  Bar
+  Bar,
 } from "recharts";
-
+import fetchData from "./functions/fetchData";
 
 export default function Dashboard() {
-  const complaintsByRegion = getComplaintsByRegion(mockData)
+  const complaintsByRegion = getComplaintsByRegion(mockData);
   const complaintsPerDay = getComplaintsPerDay(mockData);
   const ncrCityData = getNCRComplaintsByCity(mockData);
   const networkIssueData = getNetworkIssueCounts(mockData);
+
+  useEffect(() => {
+    const getData = async () => {
+      const result = await fetchData();
+      console.log(result);
+    };
+
+    getData();
+  }, []);
 
   return (
     <div className="relative bg-[#111111] text-white min-h-screen">
@@ -55,56 +64,65 @@ export default function Dashboard() {
             <div className="text-xl font-bold mb-4">Complaints Per Region</div>
             {complaintsByRegion.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={complaintsByRegion} barGap={8} barCategoryGap="20%">
-                {/* Background grid */}
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-            
-                {/* X and Y axes */}
-                <XAxis dataKey="region" stroke="#fff" />
-                <YAxis 
-                  stroke="#fff"
-                  label={{
-                    value: "Complaints",
-                    angle: -90,
-                    position: "insideLeft",
-                    fill: "#fff",
-                    fontSize: 14,
-                  }} 
-                />
-            
-                {/* Tooltip and Legend */}
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#333",
-                    border: "1px solid #444",
-                    borderRadius: "4px",
-                  }}
-                  labelStyle={{ color: "#fff" }}
-                />
-                <Legend />
-            
-                {/* Define a linear gradient for the fill */}
-                <defs>
-                  <linearGradient id="gradientColor" x1="0%" y1="0%" x2="0%" y2="100%">
-                    {/* Top color */}
-                    <stop offset="0%" stopColor="#FF9500" />
-                    {/* Bottom color */}
-                    <stop offset="100%" stopColor="#FF3B30" />
-                  </linearGradient>
-                </defs>
-            
-                {/* The Bar itself, using the gradient */}
-                <Bar
-                  dataKey="complaints"
-                  fill="url(#gradientColor)"
-                  name="Complaints"            /* or "Complaints," depending on your label */
-                  stroke="#FF3B30"      /* optional: a matching stroke */
-                  strokeWidth={1}       /* thickness of that stroke */
-                  radius={[4, 4, 0, 0]} /* rounded top corners */
-                />
-              </BarChart>
-            </ResponsiveContainer>
-            
+                <BarChart
+                  data={complaintsByRegion}
+                  barGap={8}
+                  barCategoryGap="20%"
+                >
+                  {/* Background grid */}
+                  <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+
+                  {/* X and Y axes */}
+                  <XAxis dataKey="region" stroke="#fff" />
+                  <YAxis
+                    stroke="#fff"
+                    label={{
+                      value: "Complaints",
+                      angle: -90,
+                      position: "insideLeft",
+                      fill: "#fff",
+                      fontSize: 14,
+                    }}
+                  />
+
+                  {/* Tooltip and Legend */}
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#333",
+                      border: "1px solid #444",
+                      borderRadius: "4px",
+                    }}
+                    labelStyle={{ color: "#fff" }}
+                  />
+                  <Legend />
+
+                  {/* Define a linear gradient for the fill */}
+                  <defs>
+                    <linearGradient
+                      id="gradientColor"
+                      x1="0%"
+                      y1="0%"
+                      x2="0%"
+                      y2="100%"
+                    >
+                      {/* Top color */}
+                      <stop offset="0%" stopColor="#FF9500" />
+                      {/* Bottom color */}
+                      <stop offset="100%" stopColor="#FF3B30" />
+                    </linearGradient>
+                  </defs>
+
+                  {/* The Bar itself, using the gradient */}
+                  <Bar
+                    dataKey="complaints"
+                    fill="url(#gradientColor)"
+                    name="Complaints" /* or "Complaints," depending on your label */
+                    stroke="#FF3B30" /* optional: a matching stroke */
+                    strokeWidth={1} /* thickness of that stroke */
+                    radius={[4, 4, 0, 0]} /* rounded top corners */
+                  />
+                </BarChart>
+              </ResponsiveContainer>
             ) : (
               <div className="text-gray-400">No data available</div>
             )}
@@ -130,46 +148,59 @@ export default function Dashboard() {
           <div className="bg-[#1C1C1C] border border-[#333333] rounded-lg flex flex-col items-center justify-center text-xl font-bold p-4">
             <div className="text-xl font-bold my-4">Network Issues</div>
 
-            {networkIssueData && (networkIssueData[0].value > 0 || networkIssueData[1].value > 0) ? (
+            {networkIssueData &&
+            (networkIssueData[0].value > 0 || networkIssueData[1].value > 0) ? (
               <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-          {/* Define the gradients for each slice */}
-          <defs>
-            <linearGradient id="gradientColor2" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#7B8EEA" />
-              <stop offset="50%" stopColor="#3B46F1" />
-            </linearGradient>
+                <PieChart>
+                  {/* Define the gradients for each slice */}
+                  <defs>
+                    <linearGradient
+                      id="gradientColor2"
+                      x1="0%"
+                      y1="0%"
+                      x2="100%"
+                      y2="100%"
+                    >
+                      <stop offset="0%" stopColor="#7B8EEA" />
+                      <stop offset="50%" stopColor="#3B46F1" />
+                    </linearGradient>
 
-            <linearGradient id="gradientColor1" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#FF9500" />
-              <stop offset="50%" stopColor="#FF3B30" />
-            </linearGradient>
-          </defs>
+                    <linearGradient
+                      id="gradientColor1"
+                      x1="0%"
+                      y1="0%"
+                      x2="0%"
+                      y2="100%"
+                    >
+                      <stop offset="0%" stopColor="#FF9500" />
+                      <stop offset="50%" stopColor="#FF3B30" />
+                    </linearGradient>
+                  </defs>
 
-          {/* Use the networkIssueData as the Pie data */}
-          <Pie
-            data={networkIssueData}
-            dataKey="value"
-            nameKey="name"
-            outerRadius={90}
-            innerRadius={50}
-            stroke="#333333"
-          >
-            {/* First slice uses the first gradient */}
-            <Cell fill="url(#gradientColor1)" />
-            {/* Second slice uses the second gradient */}
-            <Cell fill="url(#gradientColor2)" />
-          </Pie>
-          <Legend
-            verticalAlign="bottom"
-            align="center"
-            iconType="circle"
-            wrapperStyle={{
-              color: "#fff",
-            }}
-          />
-        </PieChart>
-            </ResponsiveContainer>
+                  {/* Use the networkIssueData as the Pie data */}
+                  <Pie
+                    data={networkIssueData}
+                    dataKey="value"
+                    nameKey="name"
+                    outerRadius={90}
+                    innerRadius={50}
+                    stroke="#333333"
+                  >
+                    {/* First slice uses the first gradient */}
+                    <Cell fill="url(#gradientColor1)" />
+                    {/* Second slice uses the second gradient */}
+                    <Cell fill="url(#gradientColor2)" />
+                  </Pie>
+                  <Legend
+                    verticalAlign="bottom"
+                    align="center"
+                    iconType="circle"
+                    wrapperStyle={{
+                      color: "#fff",
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
             ) : (
               <div className="text-gray-400">No data available</div>
             )}
@@ -177,7 +208,9 @@ export default function Dashboard() {
 
           {/* 4) Single-cell box */}
           <div className="bg-[#1C1C1C] border border-[#333333] rounded-lg flex flex-col items-center justify-center text-xl font-bold">
-            <div className="text-xl font-bold mt-4 pb-4">NCR Complaints Heatmap</div>
+            <div className="text-xl font-bold mt-4 pb-4">
+              NCR Complaints Heatmap
+            </div>
             {ncrCityData.length > 0 ? (
               <ResponsiveContainer width="95%" height={300}>
                 <Treemap
@@ -186,11 +219,10 @@ export default function Dashboard() {
                   nameKey="name"
                   stroke="#333"
                   /* ratio controls the aspect ratio of each tile */
-                  ratio={4/3}
+                  ratio={4 / 3}
                   /* base fill color; you can define your own gradient as well */
                   fill="#FF9500"
-                >
-                </Treemap>
+                ></Treemap>
               </ResponsiveContainer>
             ) : (
               <div className="text-gray-400">No data available</div>
@@ -255,7 +287,6 @@ function getNetworkIssueCounts(data) {
   ];
 }
 
-
 function getNCRComplaintsByCity(data) {
   const cityCounts = {};
 
@@ -290,7 +321,6 @@ function parseCity(locationString) {
   return city || null;
 }
 
-
 function getComplaintsByRegion(data) {
   const regionCounts = {};
 
@@ -310,8 +340,6 @@ function getComplaintsByRegion(data) {
     complaints,
   }));
 }
-
-
 
 function highlightMentions(text) {
   return text.split(/\s+/).map((word, index) => {
@@ -352,7 +380,7 @@ function getComplaintsPerDay(data) {
 function getComplaintsByType(data) {
   const complaintTypes = {
     "Network Issue": 0,
-    "Other": 0,
+    Other: 0,
   };
 
   data.forEach((item) => {
