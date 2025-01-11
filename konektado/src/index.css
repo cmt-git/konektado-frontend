@@ -11,3 +11,37 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@keyframes scrollText {
+  0% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(-100%);
+  }
+}
+
+.scroll-container {
+  position: relative;
+  height: 750px;      /* fixed height, so it crops the text */
+  overflow: hidden;   /* hide anything outside this box */
+}
+
+.scroll-content {
+  position: absolute;
+  width: 100%;
+  /* Start at top: 0, move up by 100% of its own height. */
+  animation: scrollText 1000s linear infinite;
+  /* 60s = total scroll duration. Adjust if needed. */
+}
+
+@keyframes scrollText {
+  /* Start fully visible at the top */
+  0% {
+    transform: translateY(0);
+  }
+  /* End fully scrolled out of the container */
+  100% {
+    transform: translateY(-100%);
+  }
+}
