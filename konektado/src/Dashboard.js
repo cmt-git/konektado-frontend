@@ -17,17 +17,10 @@ import {
   Bar,
 } from "recharts";
 import { scaleLinear } from "d3-scale";
+import fetchData from "./functions/fetchData";
 
 function CustomTreemapCell(props) {
-  const {
-    x,
-    y,
-    width,
-    height,
-    value,
-    name,
-    root,
-  } = props;
+  const { x, y, width, height, value, name, root } = props;
 
   // Extract all sibling values to determine the min/max
   const values = root?.children?.map((d) => d.value) || [];
@@ -56,12 +49,7 @@ function CustomTreemapCell(props) {
         stroke="#333"
       />
       {showLabel && (
-        <text
-          x={x + 6}
-          y={y + 18}
-          fontSize={14}
-          fill="#000"
-        >
+        <text x={x + 6} y={y + 18} fontSize={14} fill="#000">
           {`${name} (${value})`}
         </text>
       )}
@@ -75,14 +63,14 @@ export default function Dashboard() {
   const ncrCityData = getNCRComplaintsByCity(mockData);
   const networkIssueData = getNetworkIssueCounts(mockData);
 
-  // useEffect(() => {
-  //   const getData = async () => {
-  //     const result = await fetchData();
-  //     console.log(result);
-  //   };
+  useEffect(() => {
+    const getData = async () => {
+      const result = await fetchData();
+      console.log(result);
+    };
 
-  //   getData();
-  // }, []);
+    getData();
+  }, []);
 
   return (
     <div className="relative bg-[#111111] text-white min-h-screen">
@@ -426,4 +414,3 @@ function getComplaintsPerDay(data) {
     complaints,
   }));
 }
-
