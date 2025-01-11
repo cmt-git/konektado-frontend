@@ -3,6 +3,9 @@ import mockData from "./mockData.json";
 import {
   ResponsiveContainer,
   LineChart,
+  PieChart,
+  Pie,
+  Cell,
   CartesianGrid,
   XAxis,
   YAxis,
@@ -13,6 +16,7 @@ import {
 
 export default function Dashboard() {
   const complaintsPerDay = getComplaintsPerDay(mockData);
+  const complaintsByType = getComplaintsByType(mockData);
   return (
     <div className="relative bg-[#111111] text-white min-h-screen">
       {/* Simple Header */}
@@ -59,12 +63,28 @@ export default function Dashboard() {
 
           {/* 3) Single-cell box */}
           <div className="bg-[#1C1C1C] border border-[#333333] rounded-lg flex flex-col items-center justify-center text-xl font-bold">
-            <div className="text-lg font-semibold my-4">Chart #3</div>
-            <div className="flex flex-col justify-between w-[80%] px-8">
-              <div className="flex flex-row items-center justify-between">
-                <div className="text-sm text-[#878787]">###</div>
-                <div className="text-sm text-[#878787]">Test2</div>
-              </div>
+            <div className="text-lg font-semibold mb-4">Complaints by Type</div>
+            <div className="w-full h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={complaintsByType}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius="80%"
+                    label
+                    labelLine={false}
+                  >
+                    {complaintsByType.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={getColor(index)} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
@@ -149,4 +169,27 @@ function getComplaintsPerDay(data) {
     day,
     complaints,
   }));
+}
+
+function getComplaintsByType(data) {
+  const complaintTypes = {
+    "Network Issue": 0,
+    "Other": 0,
+  };
+
+  data.forEach((item) => {
+    const complaintType = item.network_issue ? "Network Issue" : "Other";
+    complaintTypes[complaintType] += 1;
+  });
+
+  return Object.entries(complaintTypes).map(([name, value]) => ({
+    name,
+    value,
+  }));
+}
+
+// Function to get color for each pie chart section
+function getColor(index) {
+  const colors = ["#FF9500", "#AA0600"]; // Adjust or add more colors as needed
+  return colors[index % colors.length];
 }
