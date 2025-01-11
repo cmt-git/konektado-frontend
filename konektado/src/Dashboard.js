@@ -42,8 +42,19 @@ export default function Dashboard() {
           </div>
 
           {/* 2) Single-cell box */}
-          <div className="bg-gradient-to-tr from-[#AA0600] to-[#FF9500] border border-[#333333] rounded-lg flex items-center justify-center text-xl font-bold row-span-2">
-            <div className="text-4xl font-semibold mb-2">Chart #2</div>
+          <div className="bg-[#1C1C1C] border border-[#333333] rounded-lg row-span-2 text-white flex flex-col p-8">
+            {/* Header text */}
+            {/* <div className="text-4xl font-bold mb-4">Chart #2</div> */}
+
+            <div className="scroll-container"> 
+              <div className="scroll-content">
+                {mockData.map((item, idx) => (
+                  <div key={idx} className="mb-4 leading-relaxed">
+                    {highlightMentions(item.full_text)}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* 3) Single-cell box */}
@@ -102,6 +113,20 @@ export default function Dashboard() {
     </div>
   );
 }
+
+function highlightMentions(text) {
+  return text.split(/\s+/).map((word, index) => {
+    if (word.startsWith("@")) {
+      return (
+        <span key={index} className="text-blue-300">
+          {word}{" "}
+        </span>
+      );
+    }
+    return word + " ";
+  });
+}
+
 
 function getComplaintsPerDay(data) {
   const countsByDay = {};
