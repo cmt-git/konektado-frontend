@@ -4,8 +4,14 @@ export default function Dashboard() {
   return (
     <div className="relative bg-[#111111] text-white min-h-screen">
       {/* Simple Header */}
-      <div className="p-6 text-center text-2xl font-bold sticky top-0 z-50 bg-[#111111]/50 backdrop-blur-md border-b border-[#333333]">
-        Konektado
+      
+      <div className="sticky top-0 z-50 bg-[#111111]/50 backdrop-blur-md border-b border-[#333333] p-6 flex items-center justify-center gap-2">
+        <img 
+          src="/Icon.png"  // Root-relative path from the public folder
+          alt="App Icon" 
+          className="w-8 h-8"
+        />
+        <span className="text-2xl font-bold">Konektado</span>
       </div>
 
       <div className="p-6 md:px-36 md:py-8">
