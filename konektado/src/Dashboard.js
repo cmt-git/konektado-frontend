@@ -9,9 +9,13 @@ import {
   Tooltip,
   Legend,
   Line,
+  BarChart,
+  Bar
 } from "recharts";
 
+
 export default function Dashboard() {
+  const complaintsByRegion = getComplaintsByRegion(mockData)
   const complaintsPerDay = getComplaintsPerDay(mockData);
   return (
     <div className="relative bg-[#111111] text-white min-h-screen">
@@ -36,15 +40,69 @@ export default function Dashboard() {
         {/* Main grid layout */}
         <div className="grid grid-rows-3 grid-cols-3 gap-4 min-h-[80vh]">
           {/* 1) Box spanning 2 columns */}
-          <div className="bg-[#1C1C1C] border border-[#333333] rounded-lg col-span-2 flex flex-col items-center justify-center p-4">
-            <div className="text-lg font-semibold mb-4">Hourly Complaints</div>
-            <div className="text-gray-400">No data available</div>
+          <div className="bg-[#1C1C1C] border border-[#333333] rounded-lg col-span-2 p-4">
+            <div className="text-lg font-semibold mb-4">Complaints Per Region</div>
+            {complaintsByRegion.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={complaintsByRegion} barGap={8} barCategoryGap="20%">
+                {/* Background grid */}
+                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+            
+                {/* X and Y axes */}
+                <XAxis dataKey="region" stroke="#fff" />
+                <YAxis 
+                  stroke="#fff"
+                  label={{
+                    value: "Complaints",
+                    angle: -90,
+                    position: "insideLeft",
+                    fill: "#fff",
+                    fontSize: 14,
+                  }} 
+                />
+            
+                {/* Tooltip and Legend */}
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#333",
+                    border: "1px solid #444",
+                    borderRadius: "4px",
+                  }}
+                  labelStyle={{ color: "#fff" }}
+                />
+                <Legend />
+            
+                {/* Define a linear gradient for the fill */}
+                <defs>
+                  <linearGradient id="gradientColor" x1="0%" y1="0%" x2="0%" y2="100%">
+                    {/* Top color */}
+                    <stop offset="0%" stopColor="#FF9500" />
+                    {/* Bottom color */}
+                    <stop offset="100%" stopColor="#FF3B30" />
+                  </linearGradient>
+                </defs>
+            
+                {/* The Bar itself, using the gradient */}
+                <Bar
+                  dataKey="complaints"
+                  fill="url(#gradientColor)"
+                  name="Complaints"            /* or "Complaints," depending on your label */
+                  stroke="#FF3B30"      /* optional: a matching stroke */
+                  strokeWidth={1}       /* thickness of that stroke */
+                  radius={[4, 4, 0, 0]} /* rounded top corners */
+                />
+              </BarChart>
+            </ResponsiveContainer>
+            
+            ) : (
+              <div className="text-gray-400">No data available</div>
+            )}
           </div>
 
           {/* 2) Single-cell box */}
           <div className="bg-[#1C1C1C] border border-[#333333] rounded-lg row-span-2 text-white flex flex-col p-8">
             {/* Header text */}
-            {/* <div className="text-4xl font-bold mb-4">Chart #2</div> */}
+            <div className="text-2xl font-bold mb-4">Tweets</div>
 
             <div className="scroll-container"> 
               <div className="scroll-content">
@@ -113,6 +171,28 @@ export default function Dashboard() {
     </div>
   );
 }
+
+function getComplaintsByRegion(data) {
+  const regionCounts = {};
+
+  data.forEach((item) => {
+    // Skip entries that have no region
+    if (!item.region) return;
+
+    if (!regionCounts[item.region]) {
+      regionCounts[item.region] = 0;
+    }
+    regionCounts[item.region] += 1;
+  });
+
+  // Convert the counts object into an array for Recharts
+  return Object.entries(regionCounts).map(([region, complaints]) => ({
+    region,
+    complaints,
+  }));
+}
+
+
 
 function highlightMentions(text) {
   return text.split(/\s+/).map((word, index) => {
