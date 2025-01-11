@@ -16,7 +16,58 @@ import {
   BarChart,
   Bar
 } from "recharts";
+import { scaleLinear } from "d3-scale";
 
+function CustomTreemapCell(props) {
+  const {
+    x,
+    y,
+    width,
+    height,
+    value,
+    name,
+    root,
+  } = props;
+
+  // Extract all sibling values to determine the min/max
+  const values = root?.children?.map((d) => d.value) || [];
+  const minVal = Math.min(...values);
+  const maxVal = Math.max(...values);
+
+  // Use d3-scale to create a gradient from light orange to red
+  // Adjust colors as you see fit
+  const colorScale = scaleLinear()
+    .domain([minVal, maxVal])
+    .range(["#FFD6A3", "#FF3B30"]);
+
+  const fillColor = colorScale(value);
+
+  // Conditionally show text if there's enough room
+  const showLabel = width > 60 && height > 30;
+
+  return (
+    <g>
+      <rect
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        fill={fillColor}
+        stroke="#333"
+      />
+      {showLabel && (
+        <text
+          x={x + 6}
+          y={y + 18}
+          fontSize={14}
+          fill="#000"
+        >
+          {`${name} (${value})`}
+        </text>
+      )}
+    </g>
+  );
+}
 
 export default function Dashboard() {
   const complaintsByRegion = getComplaintsByRegion(mockData)
@@ -185,12 +236,10 @@ export default function Dashboard() {
                   dataKey="value"
                   nameKey="name"
                   stroke="#333"
-                  /* ratio controls the aspect ratio of each tile */
-                  ratio={4/3}
-                  /* base fill color; you can define your own gradient as well */
-                  fill="#FF9500"
-                >
-                </Treemap>
+                  ratio={4 / 3}
+                  // Use the custom cell to color each rectangle by its value
+                  content={<CustomTreemapCell />}
+                />
               </ResponsiveContainer>
             ) : (
               <div className="text-gray-400">No data available</div>
@@ -217,7 +266,7 @@ export default function Dashboard() {
                   <Line
                     type="monotone"
                     dataKey="complaints"
-                    stroke="#FF9500"
+                    stroke="#ff6403"
                     strokeWidth={2}
                     dot={true}
                   />
@@ -349,25 +398,3 @@ function getComplaintsPerDay(data) {
   }));
 }
 
-function getComplaintsByType(data) {
-  const complaintTypes = {
-    "Network Issue": 0,
-    "Other": 0,
-  };
-
-  data.forEach((item) => {
-    const complaintType = item.network_issue ? "Network Issue" : "Other";
-    complaintTypes[complaintType] += 1;
-  });
-
-  return Object.entries(complaintTypes).map(([name, value]) => ({
-    name,
-    value,
-  }));
-}
-
-// Function to get color for each pie chart section
-function getColor(index) {
-  const colors = ["#FF9500", "#AA0600"]; // Adjust or add more colors as needed
-  return colors[index % colors.length];
-}
