@@ -9,14 +9,22 @@ import {
   Tooltip,
   Legend,
   Line,
+  Treemap,
   BarChart,
-  Bar
+  Bar,
+  PieChart,
+  Pie,
+  Cell
 } from "recharts";
 
 
 export default function Dashboard() {
   const complaintsByRegion = getComplaintsByRegion(mockData)
   const complaintsPerDay = getComplaintsPerDay(mockData);
+  const ncrCityData = getNCRComplaintsByCity(mockData);
+  const networkIssueData = getNetworkIssueCounts(mockData);
+  const pieColors = ["#FF9500", "#FF3B30"];
+
   return (
     <div className="relative bg-[#111111] text-white min-h-screen">
       {/* Simple Header */}
@@ -41,7 +49,7 @@ export default function Dashboard() {
         <div className="grid grid-rows-3 grid-cols-3 gap-4 min-h-[80vh]">
           {/* 1) Box spanning 2 columns */}
           <div className="bg-[#1C1C1C] border border-[#333333] rounded-lg col-span-2 p-4">
-            <div className="text-lg font-semibold mb-4">Complaints Per Region</div>
+            <div className="text-xl font-bold mb-4">Complaints Per Region</div>
             {complaintsByRegion.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
               <BarChart data={complaintsByRegion} barGap={8} barCategoryGap="20%">
@@ -102,7 +110,7 @@ export default function Dashboard() {
           {/* 2) Single-cell box */}
           <div className="bg-[#1C1C1C] border border-[#333333] rounded-lg row-span-2 text-white flex flex-col p-8">
             {/* Header text */}
-            <div className="text-2xl font-bold mb-4">Tweets</div>
+            <div className="text-xl font-bold mb-4">Tweets</div>
 
             <div className="scroll-container"> 
               <div className="scroll-content">
@@ -116,22 +124,74 @@ export default function Dashboard() {
           </div>
 
           {/* 3) Single-cell box */}
-          <div className="bg-[#1C1C1C] border border-[#333333] rounded-lg flex flex-col items-center justify-center text-xl font-bold">
-            <div className="text-lg font-semibold my-4">Chart #3</div>
-            <div className="flex flex-col justify-between w-[80%] px-8">
-              <div className="flex flex-row items-center justify-between">
-                <div className="text-sm text-[#878787]">###</div>
-                <div className="text-sm text-[#878787]">Test2</div>
-              </div>
-            </div>
+          <div className="bg-[#1C1C1C] border border-[#333333] rounded-lg flex flex-col items-center justify-center text-xl font-bold p-4">
+            <div className="text-xl font-bold my-4">Network Issues</div>
+
+            {networkIssueData && (networkIssueData[0].value > 0 || networkIssueData[1].value > 0) ? (
+              <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+          {/* Define the gradients for each slice */}
+          <defs>
+            <linearGradient id="gradientColor2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#7B8EEA" />
+              <stop offset="50%" stopColor="#3B46F1" />
+            </linearGradient>
+
+            <linearGradient id="gradientColor1" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="#FF9500" />
+              <stop offset="50%" stopColor="#FF3B30" />
+            </linearGradient>
+          </defs>
+
+          {/* Use the networkIssueData as the Pie data */}
+          <Pie
+            data={networkIssueData}
+            dataKey="value"
+            nameKey="name"
+            outerRadius={90}
+            innerRadius={50}
+            stroke="#333333"
+          >
+            {/* First slice uses the first gradient */}
+            <Cell fill="url(#gradientColor1)" />
+            {/* Second slice uses the second gradient */}
+            <Cell fill="url(#gradientColor2)" />
+          </Pie>
+          <Legend
+            verticalAlign="bottom"
+            align="center"
+            iconType="circle"
+            wrapperStyle={{
+              color: "#fff",
+            }}
+          />
+        </PieChart>
+            </ResponsiveContainer>
+            ) : (
+              <div className="text-gray-400">No data available</div>
+            )}
           </div>
 
           {/* 4) Single-cell box */}
           <div className="bg-[#1C1C1C] border border-[#333333] rounded-lg flex flex-col items-center justify-center text-xl font-bold">
-            <div className="text-lg font-semibold mt-4 pb-4">
-              Chart #4
-            </div>
-            <div className="text-4xl">###</div>
+            <div className="text-xl font-bold mt-4 pb-4">NCR Complaints Heatmap</div>
+            {ncrCityData.length > 0 ? (
+              <ResponsiveContainer width="95%" height={300}>
+                <Treemap
+                  data={ncrCityData}
+                  dataKey="value"
+                  nameKey="name"
+                  stroke="#333"
+                  /* ratio controls the aspect ratio of each tile */
+                  ratio={4/3}
+                  /* base fill color; you can define your own gradient as well */
+                  fill="#FF9500"
+                >
+                </Treemap>
+              </ResponsiveContainer>
+            ) : (
+              <div className="text-gray-400">No data available</div>
+            )}
           </div>
 
           {/* 6) Box spanning full width (col-span-3) */}
@@ -171,6 +231,64 @@ export default function Dashboard() {
     </div>
   );
 }
+
+function getNetworkIssueCounts(data) {
+  let noInternetCount = 0;
+  let slowInternetCount = 0;
+
+  data.forEach((item) => {
+    // If network_issue_type is missing or null, skip
+    if (!item.network_issue_type) return;
+
+    if (item.network_issue_type === "no_internet") {
+      noInternetCount++;
+    } else if (item.network_issue_type === "slow_internet") {
+      slowInternetCount++;
+    }
+  });
+
+  // Return the array that Recharts expects
+  return [
+    { name: "No Internet", value: noInternetCount },
+    { name: "Slow Internet", value: slowInternetCount },
+  ];
+}
+
+
+function getNCRComplaintsByCity(data) {
+  const cityCounts = {};
+
+  data.forEach((item) => {
+    // Only consider if "ncr" is true
+    if (!item.ncr) return;
+
+    // Extract city from location; skip if blank
+    const city = parseCity(item.location);
+    if (!city) return;
+
+    if (!cityCounts[city]) {
+      cityCounts[city] = 0;
+    }
+    cityCounts[city] += 1;
+  });
+
+  // Convert to an array for Recharts' Treemap
+  return Object.entries(cityCounts).map(([name, value]) => ({
+    name,
+    value,
+  }));
+}
+
+/** Example parser: get the *last* city from "Iligan City / Quezon City" */
+function parseCity(locationString) {
+  if (!locationString || !locationString.trim()) return null;
+  // Split by "/" and trim
+  const parts = locationString.split("/").map((s) => s.trim());
+  // Return the last part
+  const city = parts[parts.length - 1];
+  return city || null;
+}
+
 
 function getComplaintsByRegion(data) {
   const regionCounts = {};
