@@ -3,6 +3,9 @@ import mockData from "./mockData.json";
 import {
   ResponsiveContainer,
   LineChart,
+  PieChart,
+  Pie,
+  Cell,
   CartesianGrid,
   XAxis,
   YAxis,
@@ -21,18 +24,15 @@ import {
 export default function Dashboard() {
   const complaintsByRegion = getComplaintsByRegion(mockData)
   const complaintsPerDay = getComplaintsPerDay(mockData);
-  const ncrCityData = getNCRComplaintsByCity(mockData);
-  const networkIssueData = getNetworkIssueCounts(mockData);
-  const pieColors = ["#FF9500", "#FF3B30"];
-
+  const complaintsByType = getComplaintsByType(mockData);
   return (
     <div className="relative bg-[#111111] text-white min-h-screen">
       {/* Simple Header */}
-      
+
       <div className="sticky top-0 z-50 bg-[#111111]/50 backdrop-blur-md border-b border-[#333333] p-6 flex items-center justify-center gap-2">
-        <img 
-          src="/Icon.png"  // Root-relative path from the public folder
-          alt="App Icon" 
+        <img
+          src="/Icon.png" // Root-relative path from the public folder
+          alt="App Icon"
           className="w-8 h-8"
         />
         <span className="text-2xl font-bold">Konektado</span>
@@ -41,8 +41,12 @@ export default function Dashboard() {
       <div className="p-6 md:px-36 md:py-8">
         {/* Row for heading/date, etc. */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-          <div className="text-2xl font-semibold">Welcome to Your Dashboard</div>
-          <div className="text-sm text-[#878787]">Current Month: January 2025</div>
+          <div className="text-2xl font-semibold">
+            Welcome to Your Dashboard
+          </div>
+          <div className="text-sm text-[#878787]">
+            Current Month: January 2025
+          </div>
         </div>
 
         {/* Main grid layout */}
@@ -112,7 +116,7 @@ export default function Dashboard() {
             {/* Header text */}
             <div className="text-xl font-bold mb-4">Tweets</div>
 
-            <div className="scroll-container"> 
+            <div className="scroll-container">
               <div className="scroll-content">
                 {mockData.map((item, idx) => (
                   <div key={idx} className="mb-4 leading-relaxed">
@@ -124,81 +128,41 @@ export default function Dashboard() {
           </div>
 
           {/* 3) Single-cell box */}
-          <div className="bg-[#1C1C1C] border border-[#333333] rounded-lg flex flex-col items-center justify-center text-xl font-bold p-4">
-            <div className="text-xl font-bold my-4">Network Issues</div>
-
-            {networkIssueData && (networkIssueData[0].value > 0 || networkIssueData[1].value > 0) ? (
+          <div className="bg-[#1C1C1C] border border-[#333333] rounded-lg flex flex-col items-center justify-center text-xl font-bold">
+            <div className="text-lg font-semibold mb-4">Complaints by Type</div>
+            <div className="w-full h-64">
               <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-          {/* Define the gradients for each slice */}
-          <defs>
-            <linearGradient id="gradientColor2" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#7B8EEA" />
-              <stop offset="50%" stopColor="#3B46F1" />
-            </linearGradient>
-
-            <linearGradient id="gradientColor1" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#FF9500" />
-              <stop offset="50%" stopColor="#FF3B30" />
-            </linearGradient>
-          </defs>
-
-          {/* Use the networkIssueData as the Pie data */}
-          <Pie
-            data={networkIssueData}
-            dataKey="value"
-            nameKey="name"
-            outerRadius={90}
-            innerRadius={50}
-            stroke="#333333"
-          >
-            {/* First slice uses the first gradient */}
-            <Cell fill="url(#gradientColor1)" />
-            {/* Second slice uses the second gradient */}
-            <Cell fill="url(#gradientColor2)" />
-          </Pie>
-          <Legend
-            verticalAlign="bottom"
-            align="center"
-            iconType="circle"
-            wrapperStyle={{
-              color: "#fff",
-            }}
-          />
-        </PieChart>
-            </ResponsiveContainer>
-            ) : (
-              <div className="text-gray-400">No data available</div>
-            )}
+                <PieChart>
+                  <Pie
+                    data={complaintsByType}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius="80%"
+                    label
+                    labelLine={false}
+                  >
+                    {complaintsByType.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={getColor(index)} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
           {/* 4) Single-cell box */}
           <div className="bg-[#1C1C1C] border border-[#333333] rounded-lg flex flex-col items-center justify-center text-xl font-bold">
-            <div className="text-xl font-bold mt-4 pb-4">NCR Complaints Heatmap</div>
-            {ncrCityData.length > 0 ? (
-              <ResponsiveContainer width="95%" height={300}>
-                <Treemap
-                  data={ncrCityData}
-                  dataKey="value"
-                  nameKey="name"
-                  stroke="#333"
-                  /* ratio controls the aspect ratio of each tile */
-                  ratio={4/3}
-                  /* base fill color; you can define your own gradient as well */
-                  fill="#FF9500"
-                >
-                </Treemap>
-              </ResponsiveContainer>
-            ) : (
-              <div className="text-gray-400">No data available</div>
-            )}
+            <div className="text-lg font-semibold mt-4 pb-4">Chart #4</div>
+            <div className="text-4xl">###</div>
           </div>
 
           {/* 6) Box spanning full width (col-span-3) */}
           <div className="bg-[#1C1C1C] border border-[#333333] rounded-lg col-span-3 flex flex-col items-center justify-center p-4">
-            <div className="text-lg font-semibold mb-4">
-              Complaints Per Day
-            </div>
+            <div className="text-lg font-semibold mb-4">Complaints Per Day</div>
             {complaintsPerDay.length > 0 ? (
               <ResponsiveContainer width="95%" height={300}>
                 <LineChart data={complaintsPerDay}>
@@ -325,7 +289,6 @@ function highlightMentions(text) {
   });
 }
 
-
 function getComplaintsPerDay(data) {
   const countsByDay = {};
 
@@ -347,4 +310,27 @@ function getComplaintsPerDay(data) {
     day,
     complaints,
   }));
+}
+
+function getComplaintsByType(data) {
+  const complaintTypes = {
+    "Network Issue": 0,
+    "Other": 0,
+  };
+
+  data.forEach((item) => {
+    const complaintType = item.network_issue ? "Network Issue" : "Other";
+    complaintTypes[complaintType] += 1;
+  });
+
+  return Object.entries(complaintTypes).map(([name, value]) => ({
+    name,
+    value,
+  }));
+}
+
+// Function to get color for each pie chart section
+function getColor(index) {
+  const colors = ["#FF9500", "#AA0600"]; // Adjust or add more colors as needed
+  return colors[index % colors.length];
 }
